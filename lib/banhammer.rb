@@ -2,15 +2,7 @@ require "banhammer/engine"
 require "banhammer/version"
 
 module Banhammer
-  class SpamFilter
-    def initialize(email_list, keyword_list, kw_sensitivity=:normal, link_sensitivity=:normal)
-      @email_filter_list = email_list
-      @keyword_filter_list = keyword_list
-      @default_spam_point = 21
-      @keyword_sensitivity_level = kw_sensitivity #default: normal
-      @link_sensitivity_level = link_sensitivity #default: normal
-    end
-
+  class Banhammer
     ####
     # Returns 'true' if any matches are found, returns 'false' if no matches are found
     ####
@@ -62,11 +54,11 @@ module Banhammer
     def count_links(body)
       count = 0
       if @link_sensitivity_level == :high
-        body.gsub(/(h\w+:\/\/[a-z\-0-9 ]+[a-z\-0-9\.]+)|(www[ ][a-z\-0-9]+[ ][a-z]+)/i) {|s| if s.length <= 63 && s.length >= 3 && s.start_with?("-", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9") == false then count += 1 end}
+        body.gsub(/(h\w+:\/\/[a-z\-0-9 ]+[a-z\-0-9\.]+)|(www[ ][a-z\-0-9]+[ ][a-z]+)/i) { |s| if s.length <= 63 && s.length >= 3 && s.start_with?("-", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9") == false then count += 1 end }
       else
-        body.gsub(/h\w+:\/\/[a-z\-0-9]+\.[a-z\-0-9]+/i) {|s| if s.length <= 63 && s.length >= 3 then count += 1 end}
+        body.gsub(/h\w+:\/\/[a-z\-0-9]+\.[a-z\-0-9]+/i) { |s| if s.length <= 63 && s.length >= 3 then count += 1 end }
       end
-      return count
+      count
     end
 
     ####
@@ -74,15 +66,32 @@ module Banhammer
     ####
     def check_for_emails(body)
       count = 0
-      body.gsub(/[a-z0-9\._-]+@{1}[a-z0-9\.]+/i) {|s| count += 1}
-      return count
+      body.gsub(/[a-z0-9\._-]+@{1}[a-z0-9\.]+/i) { |s| count += 1 }
+      count
+    end
+  end
+  class SpamFilter < Banhammer
+    def initialize(email_list, keyword_list, kw_sensitivity=:normal, link_sensitivity=:normal)
+      @email_filter_list = email_list
+      @keyword_filter_list = keyword_list
+      @default_spam_point = 21
+      @keyword_sensitivity_level = kw_sensitivity #default: normal
+      @link_sensitivity_level = link_sensitivity #default: normal
     end
 
     ####
     # Check for wordpress-like shortcodes
     ####
     def check_wp_shortcodes(body)
-      body.match?(/\[[a-z0-9\-_=\" ]+\][a-z0-9\-_\& ]+\[[a-z0-9\-_=\" \/]+\]/i) 
+      body.match?(/\[[\w\W\-_=\" ]+\][a-z0-9\-_\& ]+\[[\w\W\-_=\" \/]+\]/i) 
+    end
+
+    def grade()
+    end
+  end
+
+  class ScoringSystem < Banhammer
+    def intialize(*options)
     end
   end
 

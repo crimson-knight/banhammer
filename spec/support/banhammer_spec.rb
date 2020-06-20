@@ -1,4 +1,5 @@
 ### TBD - ALL METHODS NEED SOMETHING TO CATCH IF THEY ARE PASSED INCORRECT VALUES OR INVALID TYPES. AKA expected a String, got a Enumerable/Integer/Nil/JSON etc.
+
 require 'banhammer'
 
 RSpec.describe Banhammer do
@@ -17,9 +18,7 @@ RSpec.describe Banhammer do
   it "checks that we have a SpamFilter object created" do
     expect(spam_filter).to eq(spam_filter)
   end
-  #---------------------------------------------------------------------------------------------#
-  #                 Check if all variations of the email filter are working 
-  #---------------------------------------------------------------------------------------------#
+
   it "checks for positive match to email spam filters for the domain .xyz (set as spam)" do
   	expect(spam_filter.check_email('email@thiswillfail.xyz')).to eq(true)
     expect(spam_filter.check_email('testing1@failure.xyz')).to eq(true)
@@ -43,44 +42,26 @@ RSpec.describe Banhammer do
   	expect(spam_filter.check_email('test2@spammy.the.spammer.com')).to eq(true)
   end
 
-  #---------------------------------------------------------------------------------------------#
-  #         Check keywords under the :normal sensitivity level
-  #---------------------------------------------------------------------------------------------#
   it "checks the spam score of a normal form submission, spam score of 0 expected" do 
   	expect(spam_filter.check_keywords('this is a form submission from a real user')).to eq(0)
   end
 
-  #---------------------------------------------------------------------------------------------#
-  #         Check the link count under the :normal sensitivity level
-  #---------------------------------------------------------------------------------------------#
   it "Checks that the number of links found in this string is '1' on normal sensitivity" do
     expect(spam_filter.count_links(spammy_submission)).to eq(1)
   end
 
-  #---------------------------------------------------------------------------------------------#
-  #         Check the count of emails found in a body of text
-  #---------------------------------------------------------------------------------------------#
   it "Checks that the number of links found in this string is 1 on normal sensitivity" do
     expect(spam_filter.count_links(spammy_submission)).to eq(1)
   end
 
-  #---------------------------------------------------------------------------------------------#
-  #         Check keywords under the :high sensitivity level 
-  #---------------------------------------------------------------------------------------------#
   it "Checks the score of a low-spam submission to be 20 or more on high sensitivity" do 
     expect(sensitive_spam_filter.check_keywords(sensitive_spammy_submission)).to be > 20
   end
 
-  #---------------------------------------------------------------------------------------------#
-  #         Check the link count under the :high sensitivity level
-  #---------------------------------------------------------------------------------------------#
   it "Checks that the number of links found in this string is 1 on high sensitivity" do
     expect(sensitive_spam_filter.count_links(sensitive_spammy_submission)).to eq(1)
   end
 
-  #---------------------------------------------------------------------------------------------#
-  #         Check for an email being present in a body of text
-  #---------------------------------------------------------------------------------------------#
   it "Checks for an email present in the string" do  
     expect(spam_filter.check_for_emails(spammy_submission)).to eq(1)
   end
@@ -89,22 +70,16 @@ RSpec.describe Banhammer do
     expect(spam_filter.check_for_emails(string_with_several_emails)).to eq(2)
   end
 
-  #---------------------------------------------------------------------------------------------#
-  #         Check for wordpress shortcode in a string
-  #---------------------------------------------------------------------------------------------#
   it "Checks for wordpress shortcodes in a string, which is present (true)" do   
     expect(spam_filter.check_wp_shortcodes(wordpress_shortcode_string)).to eq(true)
   end
 
   it 'Checks for wordpress shortcodes in a string, which is not present (false)' do
-    expect(spam_filter.check_wp_shortcodes(wordpress_shortcode_string)).to eq(false)
+    expect(spam_filter.check_wp_shortcodes(spam_free_string)).to eq(false)
   end
 
-  #---------------------------------------------------------------------------------------------#
-  #         Checking the scoring method is still working
-  #---------------------------------------------------------------------------------------------#
   it 'Expecting the score to be 0 because this string is Spam free!' do
-    expect(spam_filter.score(:spam_free_string)).to eq(0)
+    expect(spam_filter.calculate_score(:spam_free_string)).to eq(0)
   end
 
 end
